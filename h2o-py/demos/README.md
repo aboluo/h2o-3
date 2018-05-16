@@ -43,9 +43,9 @@ To access the H2O Web UI, go to [https://localhost:54321](https://localhost:5432
 Open Demos Notebook
 -------------------
 
-Open the prostate_gbm.ipynb file. The notebook contains a demo that starts H2O, imports a prostate dataset into H2O, builds a GBM model, and predicts on the training set with the recently built model. Use Shift+Return to execute each cell and proceed to the next cell in the notebook .
+Open the gbm_leaf_node_assignment_mojo_test.ipynb file. The notebook contains a demo that starts H2O, imports a prostate dataset into H2O, builds a GBM model, and predicts on the training set with the recently built model. Use Shift+Return to execute each cell and proceed to the next cell in the notebook .
 
-    $ ipython notebook prostate_gbm.ipynb
+    $ ipython notebook gbm_leaf_node_assignment_mojo_test.ipynb
 
 All demos are available here:
 
@@ -72,7 +72,7 @@ To set up your Python environment to run these examples, download and install H2
 - [Airline Confusion Matrices](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/confusion_matrices_binomial.ipynb) - Uses the airlines dataset to generate confusion matrices for algorithm performance analysis.
 - [Deep Learning for Prostate Cancer Analysis](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/deeplearning.ipynb) - Uses the prostate dataset to build a Deep Learning model. 
 - [Airlines Prep](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/prep_airlines.ipynb) - Condition the airline dataset by filtering out NAs if the departure delay in the input dataset is unknown. Anything longer than `minutesOfDelayWeTolerate` is treated as delayed. 
-- [GBM model using prostate dataset](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/prostate_gbm.ipynb) - Creates a GBM model using the prostate dataset.  
+- [GBM model using prostate dataset](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/gbm_leaf_node_assignment_mojo_test.ipynb) - Creates a GBM model using the prostate dataset.
 - [Balance Classes](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/rf_balance_classes.ipynb) - Imports the airlines dataset, parses it, displays a summary, and runs GLM with a binomial link function. 
 - [Clustering with KMeans](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/kmeans_aic_bic_diagnostics.ipynb) - Demonstrates kmeans clusters and different diagnostics for selecting the number of clusters.  Link to data is provided in the notebook.
 - [EEG Eye State](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/H2O_tutorial_eeg_eyestate.ipynb) - Uses EEG data collected from an Emotiv Neuroheadset and classifies eye state (open vs closed) with a GBM.  
@@ -120,4 +120,4 @@ To set up your Python environment to run these examples, download and install H2
 
 ####Prostate Data
 
-- [Prostate Dataset](https://github.com/h2oai/sparkling-water/raw/master/examples/smalldata/prostate.csv) - Used in [Deep Learning for Prostate Cancer Analysis](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/deeplearning.ipynb) and [GBM model using prostate dataset](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/prostate_gbm.ipynb)
+- [Prostate Dataset](https://github.com/h2oai/sparkling-water/raw/master/examples/smalldata/prostate.csv) - Used in [Deep Learning for Prostate Cancer Analysis](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/deeplearning.ipynb) and [GBM model using prostate dataset](https://github.com/h2oai/h2o-3/blob/master/h2o-py/demos/gbm_leaf_node_assignment_mojo_test.ipynb)
