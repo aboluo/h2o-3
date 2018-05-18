@@ -24,19 +24,29 @@ def call(final pipelineContext) {
   // Job will execute PR_STAGES only if these are green.
   def SMOKE_STAGES = [
     [
-      stageName: 'Py2.7 Smoke', target: 'test-py-smoke', pythonVersion: '2.7',timeoutValue: 8,
+      stageName: 'Py2.7 Smoke', target: 'test-py-smoke', pythonVersion: '2.7', timeoutValue: 8,
       component: pipelineContext.getBuildConfig().COMPONENT_PY
     ],
     [
-      stageName: 'R3.4 Smoke', target: 'test-r-smoke', rVersion: '3.4.1',timeoutValue: 8,
+      stageName: 'R3.4 Smoke', target: 'test-r-smoke', rVersion: '3.4.1', timeoutValue: 8,
       component: pipelineContext.getBuildConfig().COMPONENT_R
     ],
     [
-      stageName: 'PhantomJS Smoke', target: 'test-phantom-js-smoke',timeoutValue: 20,
+      stageName: 'Win - Py3.6 Smoke', target: 'test-py-smoke', pythonVersion: '3.6', timeoutValue: 8,
+      os: pipelineContext.getBuildConfig().OS_WINDOWS, component: pipelineContext.getBuildConfig().COMPONENT_PY,
+      nodeLabel: pipelineContext.getBuildConfig().getWindowsNodeLabel(), bypassHealthCheck: true
+    ],
+    [
+      stageName: 'Win - R3.5 Smoke', target: 'test-r-smoke', rVersion: '3.5.0', timeoutValue: 8,
+      os: pipelineContext.getBuildConfig().OS_WINDOWS, component: pipelineContext.getBuildConfig().COMPONENT_R,
+      nodeLabel: pipelineContext.getBuildConfig().getWindowsNodeLabel(), bypassHealthCheck: true
+    ],
+    [
+      stageName: 'PhantomJS Smoke', target: 'test-phantom-js-smoke', timeoutValue: 20,
       component: pipelineContext.getBuildConfig().COMPONENT_JS
     ],
     [
-      stageName: 'Java8 Smoke', target: 'test-junit-smoke',timeoutValue: 20,
+      stageName: 'Java8 Smoke', target: 'test-junit-smoke', timeoutValue: 20,
       component: pipelineContext.getBuildConfig().COMPONENT_JAVA
     ]
   ]
@@ -367,6 +377,8 @@ private void executeInParallel(final jobs, final pipelineContext) {
           archiveFiles = c['archiveFiles']
           activatePythonEnv = c['activatePythonEnv']
           activateR = c['activateR']
+          os = c['os']
+          bypassHealthCheck = c['bypassHealthCheck']
         }
       }
     ]
@@ -377,8 +389,10 @@ private void invokeStage(final pipelineContext, final body) {
 
   final String DEFAULT_PYTHON = '3.5'
   final String DEFAULT_R = '3.4.1'
+  final String DEFAULT_UNIX_EXECUTION_SCRIPT = 'h2o-3/scripts/jenkins/groovy/defaultStage.groovy'
+  final String DEFAULT_WINDOWS_EXECUTION_SCRIPT = 'h2o-3/scripts/jenkins/groovy/windowsStage.groovy'
+  final String DEFAULT_OS = 'unix'
   final int DEFAULT_TIMEOUT = 60
-  final String DEFAULT_EXECUTION_SCRIPT = 'h2o-3/scripts/jenkins/groovy/defaultStage.groovy'
   final int HEALTH_CHECK_RETRIES = 5
 
   def config = [:]
@@ -397,7 +411,19 @@ private void invokeStage(final pipelineContext, final body) {
   }
   config.additionalTestPackages = config.additionalTestPackages ?: []
   config.nodeLabel = config.nodeLabel ?: pipelineContext.getBuildConfig().getDefaultNodeLabel()
-  config.executionScript = config.executionScript ?: DEFAULT_EXECUTION_SCRIPT
+  config.os = config.os ?: DEFAULT_OS
+  if (config.executionScript == null) {
+    switch (config.os) {
+      case pipelineContext.getBuildConfig().OS_UNIX:
+        config.executionScript = DEFAULT_UNIX_EXECUTION_SCRIPT
+        break
+      case pipelineContext.getBuildConfig().OS_WINDOWS:
+        config.executionScript = DEFAULT_WINDOWS_EXECUTION_SCRIPT
+        break
+      default:
+        error "OS ${config.os} not supported"
+    }
+  }
   config.image = config.image ?: pipelineContext.getBuildConfig().DEFAULT_IMAGE
   config.makefilePath = config.makefilePath ?: pipelineContext.getBuildConfig().MAKEFILE_PATH
   config.archiveAdditionalFiles = config.archiveAdditionalFiles ?: []
@@ -429,11 +455,20 @@ private void invokeStage(final pipelineContext, final body) {
               echo "###### Unstash scripts. ######"
               pipelineContext.getUtils().unstashScripts(this)
 
-              healthCheckPassed = pipelineContext.getHealthChecker().checkHealth(this, env.NODE_NAME, config.image, pipelineContext.getBuildConfig().DOCKER_REGISTRY, pipelineContext.getBuildConfig())
+              if (config.bypassHealthCheck) {
+                echo "###### Healthcheck bypassed. ######"
+                healthCheckPassed = true
+              } else {
+                healthCheckPassed = pipelineContext.getHealthChecker().checkHealth(this, env.NODE_NAME, config.image, pipelineContext.getBuildConfig().DOCKER_REGISTRY, pipelineContext.getBuildConfig())
+              }
               if (healthCheckPassed) {
                 pipelineContext.getBuildSummary().setStageDetails(this, config.stageName, env.NODE_NAME, env.WORKSPACE)
 
-                sh "rm -rf ${config.stageDir}"
+                if (config.os == pipelineContext.getBuildConfig().OS_UNIX) {
+                  sh "rm -rf ${config.stageDir}"
+                } else {
+                  powershell "rm -r -fo ${config.stageDir}"
+                }
 
                 def script = load(config.executionScript)
                 script(pipelineContext, config)
