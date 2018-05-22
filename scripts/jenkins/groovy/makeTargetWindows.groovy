@@ -28,10 +28,10 @@ def call(final pipelineContext, final Closure body) {
 
   if (config.customBuildAction == null) {
     config.customBuildAction = """
-      if ( "${config.activatePythonEnv}" = 'true' )
+      if ( "${config.activatePythonEnv}" = 'true' ) {
         echo "Activating Python ${env.PYTHON_VERSION}"
         C:\\Users\\jenkins\\h2o-3\\h2o-py${env.PYTHON_VERSION}\\Scripts\\activate.ps1
-      fi
+      }
 
       echo "Running Make"
       make -f ${config.makefilePath} ${config.target}
