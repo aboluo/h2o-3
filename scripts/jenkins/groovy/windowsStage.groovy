@@ -34,7 +34,6 @@ def call(final pipelineContext, final stageConfig) {
                 dir(stageConfig.stageDir) {
                     pipelineContext.getUtils().pullXGBWheels(this)
                 }
-                installXGBWheels(pipelineContext.getBuildConfig().getCurrentXGBVersion(), h2oFolder)
             }
 
             if (stageConfig.component == pipelineContext.getBuildConfig().COMPONENT_R || stageConfig.additionalTestPackages.contains(pipelineContext.getBuildConfig().COMPONENT_R)) {
@@ -68,15 +67,6 @@ def installPythonPackage(String h2o3dir) {
 def installRPackage(String h2o3dir) {
     powershell """
         R.exe CMD INSTALL \$(ls ${h2o3dir}\\h2o-r\\R\\src\\contrib\\h2o*.tar.gz | % {\$_.FullName})
-    """
-}
-
-def installXGBWheels(final String xgbVersion, final String h2o3dir) {
-    powershell """
-        echo "Activating Python ${env.PYTHON_VERSION}"
-        C:\\Users\\jenkins\\h2o-3\\h2o-py${env.PYTHON_VERSION}\\Scripts\\activate.ps1
-        
-        python -m pip install \$(ls ${h2o3dir}\\xgb-whls\\xgboost_ompv4-${xgbVersion}-cp${env.PYTHON_VERSION.replaceAll('\\.','')}-*-linux_x86_64.whl | % {\$_.FullName})
     """
 }
 
